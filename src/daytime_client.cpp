@@ -27,17 +27,22 @@ int main(int argc, char* argv[])
     boost::asio::io_context io_context;
 
     tcp::resolver resolver(io_context);
+
+    //put ip into endpoint.
     tcp::resolver::results_type endpoints =
       resolver.resolve(argv[1], "daytime");
 
     tcp::socket socket(io_context);
+
+    //connect to server with ip. 
     boost::asio::connect(socket, endpoints);
 
     while(true)
     {
-      boost::array<char, 128> buf;
+      boost::array<char, 128> buf; //buffer to save "daytime" passed by server
       boost::system::error_code error;
 
+      //read info from socket provided by server
       size_t len = socket.read_some(boost::asio::buffer(buf), error);
 
       if (error == boost::asio::error::eof)
@@ -45,6 +50,7 @@ int main(int argc, char* argv[])
       else if (error)
         throw boost::system::system_error(error); // Some other error.
 
+      //save data from socket and put into buffer. 
       std::cout.write(buf.data(), len);
     }
   }
